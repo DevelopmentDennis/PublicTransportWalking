@@ -1,0 +1,16 @@
+{
+  "feedUrl": "https://download.gtfs.de/germany/nv_free/latest.zip",
+  "region": { "centerLat": 48.3654, "centerLng": 10.8856, "radiusKm": 30 },
+  "minRegionStops": 3,
+  "routeTypes": [0, 3],
+  "agencies": [
+    "Omnipart",
+    "Augsburger Verkehrs- und Tarifverbund",
+    "Augsburger Verkehrsgesellschaft",
+    "DB RegioBus Bayern"
+  ],
+  "excludeNamePattern": "\\b(AST|Anruf\\w*|Rufbus|Ruf-?Bus|Sammel-?Taxi)\\b",
+  "lowVolumeTrips": 20,
+  "cacheDir": ".cache",
+  "outputDir": "output"
+}
