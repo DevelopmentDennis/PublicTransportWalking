@@ -22,6 +22,10 @@ Other flags: `--force-download`, `--no-download` (use the cached zip).
 | `stops.json` | Region stations with their platforms |
 | `index.json` | Compact lookup for the backend: stations once, line sequences as ID lists |
 
+Every direction and variant carries a `schedule`: windows of first-stop departures per day type (`mon-fri`, `sat`, `sun`), e.g. `{"days":"mon-fri","from":"14:04","to":"19:04","fromMin":844,"toMin":1144,"trips":8}`. Departures less than 90 minutes apart form one window; times past midnight keep minutes above 1440. In `index.json` this is `sch`, parallel to `seq`, as `[days, fromMin, toMin, trips]`.
+
 Stop IDs are the feed's numeric `stop_id`s. They can change between feed versions, so always rebuild everything and replace the whole output.
 
-Monthly update: re-run the script and deploy the new `index.json` with the backend.
+`index.json` is also copied to `publishIndexTo` (`assets/transit/index.json`), which the frontend bundles.
+
+Monthly update: re-run the script and commit the new `assets/transit/index.json`.

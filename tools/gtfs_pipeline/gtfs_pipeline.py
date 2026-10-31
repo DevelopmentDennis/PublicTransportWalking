@@ -124,14 +124,68 @@ def load_trip_rows(zf, wanted):
     f, col = stop_time_lines(zf)
     i_trip, i_stop, i_seq = col["trip_id"], col["stop_id"], col["stop_sequence"]
     i_hs = col.get("stop_headsign")
+    i_dep = col["departure_time"]
     rows = collections.defaultdict(list)
     with f:
         for line in f:
             if line.split(",", 1)[0] not in wanted:
                 continue
             p = next(csv.reader([line]))
-            rows[p[i_trip]].append((int(p[i_seq]), p[i_stop], p[i_hs] if i_hs is not None else ""))
+            rows[p[i_trip]].append((int(p[i_seq]), p[i_stop], p[i_hs] if i_hs is not None else "", p[i_dep]))
     return rows
+
+
+def parse_minutes(value):
+    """GTFS HH:MM:SS (hours may exceed 23) to minutes since service-day start, or None."""
+    try:
+        h, m = value.split(":")[:2]
+        return int(h) * 60 + int(m)
+    except ValueError:
+        return None
+
+
+def load_service_days(zf):
+    """service_id -> set of day types ('mon-fri', 'sat', 'sun')."""
+    names = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    kinds = ["mon-fri"] * 5 + ["sat", "sun"]
+    days = {}
+    for r in open_csv(zf, "calendar.txt"):
+        days[r["service_id"]] = {kinds[i] for i, n in enumerate(names) if r[n] == "1"}
+    # services listed only by date: ignore rare weekdays (holidays running another timetable)
+    by_date = collections.defaultdict(collections.Counter)
+    for r in open_csv(zf, "calendar_dates.txt"):
+        if r["exception_type"] == "1" and r["service_id"] not in days:
+            wd = datetime.strptime(r["date"], "%Y%m%d").weekday()
+            by_date[r["service_id"]][kinds[wd]] += 1
+    for sid, cnt in by_date.items():
+        top = max(cnt.values())
+        days[sid] = {k for k, n in cnt.items() if n >= max(2, 0.25 * top)} or set(cnt)
+    return days
+
+
+def build_schedule(deps, gap=90):
+    """deps: [(day types, minutes)] -> windows per day type, split where departures are > gap minutes apart."""
+    schedule = []
+    for kind in ("mon-fri", "sat", "sun"):
+        times = sorted(m for kinds, m in deps if kind in kinds)
+        if not times:
+            continue
+        start = prev = times[0]
+        count = 1
+        for t in times[1:] + [None]:
+            if t is not None and t - prev <= gap:
+                prev, count = t, count + 1
+                continue
+            schedule.append({"days": kind, "from": clock(start), "to": clock(prev),
+                             "fromMin": start, "toMin": prev, "trips": count})
+            if t is not None:
+                start = prev = t
+                count = 1
+    return schedule
+
+
+def clock(minutes):
+    return f"{minutes // 60 % 24:02d}:{minutes % 60:02d}"
 
 
 def pick_routes(zf, counts, cfg):
@@ -141,10 +195,12 @@ def pick_routes(zf, counts, cfg):
     best = collections.defaultdict(int)
     ntrips = collections.Counter()
     trip_route = {}
+    trip_service = {}
     for r in open_csv(zf, "trips.txt"):
         if r["trip_id"] in counts:
             rid = r["route_id"]
             trip_route[r["trip_id"]] = rid
+            trip_service[r["trip_id"]] = r["service_id"]
             best[rid] = max(best[rid], counts[r["trip_id"]])
             ntrips[rid] += 1
     cand = {}
@@ -157,7 +213,7 @@ def pick_routes(zf, counts, cfg):
             "type": int(r["route_type"]), "agency": agencies.get(r["agency_id"], r["agency_id"]),
             "regionTrips": ntrips[rid],
         }
-    return cand, trip_route
+    return cand, trip_route, trip_service
 
 
 def list_agencies(cand):
@@ -231,14 +287,14 @@ def station_of(stops, pid):
     return par if par and par in stops else pid
 
 
-def build_lines(cfg, cand, trip_route, rows, stops):
+def build_lines(cfg, cand, trip_route, rows, stops, trip_service, service_days):
     seqs_by_route = collections.defaultdict(lambda: collections.defaultdict(
-        lambda: {"n": 0, "plat": collections.Counter(), "hs": collections.Counter()}))
+        lambda: {"n": 0, "plat": collections.Counter(), "hs": collections.Counter(), "deps": []}))
     for tid, lst in rows.items():
         lst.sort()
         sts, pls = [], []
         try:
-            for _, pid, _h in lst:
+            for _, pid, _h, _d in lst:
                 sid = station_of(stops, pid)
                 if sts and sts[-1] == sid:
                     continue
@@ -251,6 +307,10 @@ def build_lines(cfg, cand, trip_route, rows, stops):
         entry = seqs_by_route[trip_route[tid]][tuple(sts)]
         entry["n"] += 1
         entry["plat"][tuple(pls)] += 1
+        dep = parse_minutes(lst[0][3])
+        kinds = service_days.get(trip_service.get(tid))
+        if dep is not None and kinds:
+            entry["deps"].append((kinds, dep))
         if lst[-1][2]:
             entry["hs"][lst[-1][2]] += 1
 
@@ -262,20 +322,23 @@ def build_lines(cfg, cand, trip_route, rows, stops):
 
     lines = []
     for (rtype, agency, number), rids in groups.items():
-        merged = collections.defaultdict(lambda: {"n": 0, "plat": collections.Counter(), "hs": collections.Counter()})
+        merged = collections.defaultdict(lambda: {"n": 0, "plat": collections.Counter(), "hs": collections.Counter(), "deps": []})
         for rid in rids:
             for seq, info in seqs_by_route[rid].items():
                 m = merged[seq]
                 m["n"] += info["n"]
                 m["plat"].update(info["plat"])
                 m["hs"].update(info["hs"])
+                m["deps"].extend(info["deps"])
         total = sum(i["n"] for i in merged.values())
         directions = []
         for d, seq, info, variants in build_directions(merged, total, cfg["lowVolumeTrips"]):
             entry = {"direction": str(d), "headsign": headsign(info, seq, stops), "trips": info["n"],
+                     "schedule": build_schedule(info["deps"]),
                      "stops": make_stops(seq, info["plat"].most_common(1)[0][0], stops)}
             if variants:
                 entry["variants"] = [{"trips": i2["n"], "headsign": headsign(i2, s2, stops),
+                                      "schedule": build_schedule(i2["deps"]),
                                       "stops": make_stops(s2, i2["plat"].most_common(1)[0][0], stops)}
                                      for s2, i2 in variants]
             directions.append(entry)
@@ -324,9 +387,11 @@ def write_outputs(cfg, lines, stops, platforms, state):
         dirs = []
         for d in ln["directions"]:
             seqs = [d["stops"]] + [v["stops"] for v in d.get("variants", [])]
+            scheds = [d["schedule"]] + [v["schedule"] for v in d.get("variants", [])]
             for s in (x for sq in seqs for x in sq):
                 used[s["id"]] = {"n": s["name"], "la": s["coord"]["lat"], "lo": s["coord"]["lng"]}
-            dirs.append({"d": d["direction"], "hs": d["headsign"], "seq": [[s["id"] for s in sq] for sq in seqs]})
+            dirs.append({"d": d["direction"], "hs": d["headsign"], "seq": [[s["id"] for s in sq] for sq in seqs],
+                         "sch": [[[w["days"], w["fromMin"], w["toMin"], w["trips"]] for w in sc] for sc in scheds]})
         index_lines.append({"file": ln["file"], "line": ln["line"], "agency": ln["agency"], "type": ln["type"],
                             "name": ln["name"], "dirs": dirs})
     index = {"generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -358,7 +423,7 @@ def main():
         platforms = region_platforms(stops, cfg["region"])
         print(f"Region platforms: {len(platforms)}")
         counts = count_region_stops(zf, platforms)
-        cand, trip_route = pick_routes(zf, counts, cfg)
+        cand, trip_route, trip_service = pick_routes(zf, counts, cfg)
         print(f"Candidate routes: {len(cand)}")
         if args.list_agencies:
             list_agencies(cand)
@@ -372,9 +437,15 @@ def main():
         print(f"Selected routes: {len(sel)} (after agency and on-demand filter)")
         wanted = {t for t, r in trip_route.items() if r in sel}
         rows = load_trip_rows(zf, wanted)
+        service_days = load_service_days(zf)
 
-    lines = build_lines(cfg, sel, trip_route, rows, stops)
+    lines = build_lines(cfg, sel, trip_route, rows, stops, trip_service, service_days)
     n_stations = write_outputs(cfg, lines, stops, platforms, state)
+    if cfg.get("publishIndexTo"):
+        target = (HERE / cfg["publishIndexTo"]).resolve()
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(cfg["outputDir"] / "index.json", target)
+        print(f"Published index.json to {target}")
     print(f"Wrote {len(lines)} lines and {n_stations} stations to {cfg['outputDir']}")
 
 

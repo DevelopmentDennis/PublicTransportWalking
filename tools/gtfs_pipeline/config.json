@@ -12,5 +12,6 @@
   "excludeNamePattern": "\\b(AST|Anruf\\w*|Rufbus|Ruf-?Bus|Sammel-?Taxi)\\b",
   "lowVolumeTrips": 20,
   "cacheDir": ".cache",
-  "outputDir": "output"
+  "outputDir": "output",
+  "publishIndexTo": "../../assets/transit/index.json"
 }
