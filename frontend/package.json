@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "vitest run",
-    "emulators:start": "docker compose up -d",
-    "emulators:stop": "docker compose down"
+    "test": "vitest run"
   },
   "dependencies": {
     "@fluentui/react-components": "^9.72.0",
