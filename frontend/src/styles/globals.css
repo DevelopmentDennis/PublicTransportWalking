@@ -236,10 +236,7 @@ a {
   color: var(--colorNeutralForeground3);
   font-size: 13px;
 }
-.availability-badge,
-.record-count,
-.coverage-summary,
-.coverage-pill {
+.availability-badge {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -258,8 +255,6 @@ a {
   box-shadow: none;
 }
 .lookup-card,
-.table-card,
-.coverage-card,
 .state-card {
   border: 1px solid var(--colorNeutralStroke2);
   border-radius: var(--radius-card);
@@ -425,10 +420,6 @@ a {
   gap: 14px;
   max-width: 780px;
 }
-.coverage-pill {
-  color: #956017;
-  background: rgba(212, 138, 42, 0.15);
-}
 .data-intro h1 {
   font-size: 34px;
   font-weight: 600;
@@ -438,9 +429,6 @@ a {
   max-width: 72ch;
   color: var(--colorNeutralForeground3);
   font-size: 15px;
-}
-.data-intro-action {
-  margin-top: 2px;
 }
 .privacy-section {
   display: grid;
@@ -462,101 +450,6 @@ a {
 .privacy-section ul {
   padding-left: 22px;
 }
-.data-section {
-  display: grid;
-  gap: 14px;
-}
-.record-count,
-.coverage-summary {
-  color: var(--colorNeutralForeground3);
-  background: var(--colorNeutralBackground3);
-}
-.table-card {
-  overflow: hidden;
-}
-.table-preview {
-  padding: 0;
-}
-.table-scroll {
-  overflow-x: auto;
-}
-.table-scroll table {
-  min-width: 740px;
-}
-.table-scroll th {
-  color: var(--colorNeutralForeground3);
-  background: var(--colorNeutralBackground3);
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.table-scroll td,
-.table-scroll th {
-  padding: 13px 16px;
-}
-.table-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #18864b;
-  font-size: 12px;
-  font-weight: 600;
-}
-.coverage-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-.coverage-card {
-  min-height: 176px;
-  padding: 16px;
-  transition:
-    transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-.coverage-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(31, 42, 42, 0.13);
-}
-.coverage-card .fui-CardHeader {
-  align-items: flex-start;
-}
-.coverage-card .fui-CardHeader__description {
-  color: var(--colorNeutralForeground3);
-}
-.dataset-icon {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 6px;
-  color: var(--brand-primary);
-  background: rgba(23, 107, 91, 0.1);
-}
-.coverage-card-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin: 14px 0 0 46px;
-  color: var(--colorNeutralForeground3);
-  overflow-wrap: anywhere;
-}
-.data-note {
-  margin-top: 2px;
-}
-.data-note .fui-MessageBarBody {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-.data-note .fui-MessageBarTitle {
-  margin-right: 4px;
-}
-.data-note .fui-Button {
-  margin-left: auto;
-}
-
 .preview-switcher {
   position: fixed;
   z-index: 100;
@@ -767,16 +660,6 @@ a {
   }
   .data-intro h1 {
     font-size: 30px;
-  }
-  .coverage-list {
-    grid-template-columns: 1fr;
-  }
-  .coverage-card {
-    min-height: 0;
-  }
-  .record-count,
-  .coverage-summary {
-    font-size: 10px;
   }
   .site-footer {
     flex-direction: column;

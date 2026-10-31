@@ -1,4 +1,4 @@
-import { getLocalDataGuide, getLocalTransitCatalog } from './transitData';
+import { getLocalTransitCatalog } from './transitData';
 import type {
   ApiClient,
   ServiceHealth,
@@ -15,10 +15,6 @@ export const liveClient: ApiClient = {
 
   async getTransitCatalog() {
     return getLocalTransitCatalog();
-  },
-
-  async getDataGuide() {
-    return getLocalDataGuide();
   },
 
   async getWalkingEstimate(request: WalkingDistanceTimeRequest) {

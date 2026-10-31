@@ -28,28 +28,30 @@ import {
 } from "@fluentui/react-components";
 import { AnimatePresence, motion } from "motion/react";
 import { api } from "../api";
+import {
+  describeSchedule,
+  isRunningAt,
+  pickPattern,
+} from "../api/patterns";
 import type {
   TransitCatalog,
-  TransitDirection,
+  TransitPattern,
   TransitStop,
   WalkingDistanceTimeResponse,
 } from "../api/types";
 import { EmptyState, ErrorState, LoadingState } from "../components/StateViews";
 
-const sampleSelection = {
-  line: "tram-1",
-  stationName: "Augsburg Hbf",
-  direction: "Göggingen",
-};
+const AUTO_PATTERN = "auto";
 
 export function WalkingRouteFinder() {
   const [catalog, setCatalog] = useState<TransitCatalog | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
-  const [selectedLineId, setSelectedLineId] = useState(sampleSelection.line);
-  const [selectedStationId, setSelectedStationId] = useState("de:09761:100");
-  const [selectedDirectionId, setSelectedDirectionId] = useState("1-outbound");
+  const [selectedLineId, setSelectedLineId] = useState("");
+  const [selectedStationId, setSelectedStationId] = useState("");
+  const [selectedDirectionId, setSelectedDirectionId] = useState("");
+  const [selectedPatternId, setSelectedPatternId] = useState(AUTO_PATTERN);
   const [formError, setFormError] = useState<string | null>(null);
   const [estimateError, setEstimateError] = useState<string | null>(null);
   const [estimate, setEstimate] = useState<WalkingDistanceTimeResponse | null>(
@@ -90,36 +92,31 @@ export function WalkingRouteFinder() {
       (direction) => direction.id === selectedDirectionId,
     ) ?? selectedLine?.directions[0];
   const selectedStation =
-    selectedStationId === "de:09761:100"
-      ? catalog?.stations.find(
-          (station) => station.name === sampleSelection.stationName,
-        )
-      : (selectedLine?.stops.find(
-          (station) => station.id === selectedStationId,
-        ) ??
-        catalog?.stations.find((station) => station.id === selectedStationId));
-  const stationOptions = useMemo(() => {
-    if (!catalog || !selectedLine) return [];
-    const sampleStations = catalog.stations.filter((station) =>
-      [
-        "Augsburg Hbf",
-        "Eingang Süd",
-        "Augsburg, Lechh., N. Ostfriedh.",
-      ].includes(station.name),
-    );
-    const byId = new Map<string, TransitStop>();
-    for (const station of [...selectedLine.stops, ...sampleStations])
-      byId.set(station.id, station);
-    return [...byId.values()].sort((left, right) =>
-      left.name.localeCompare(right.name, "de"),
-    );
-  }, [catalog, selectedLine]);
+    selectedLine?.stops.find((station) => station.id === selectedStationId) ??
+    selectedLine?.stops[0];
+  const autoPattern = selectedDirection
+    ? pickPattern(selectedDirection.patterns, new Date(), selectedStation)
+    : undefined;
+  const selectedPattern =
+    selectedPatternId === AUTO_PATTERN
+      ? autoPattern
+      : (selectedDirection?.patterns.find(
+          (pattern) => pattern.id === selectedPatternId,
+        ) ?? autoPattern);
+  const stationOptions = useMemo(
+    () =>
+      [...(selectedLine?.stops ?? [])].sort((left, right) =>
+        left.name.localeCompare(right.name, "de"),
+      ),
+    [selectedLine],
+  );
 
   function handleLineChange(lineId: string): void {
     const line = catalog?.lines.find((item) => item.id === lineId);
     setSelectedLineId(lineId);
     setSelectedStationId(line?.stops[0]?.id ?? "");
     setSelectedDirectionId(line?.directions[0]?.id ?? "");
+    setSelectedPatternId(AUTO_PATTERN);
     clearResult();
   }
 
@@ -134,13 +131,13 @@ export function WalkingRouteFinder() {
   ): Promise<void> {
     event?.preventDefault();
     clearResult();
-    if (!selectedLine || !selectedDirection || !selectedStation) {
+    if (!selectedLine || !selectedDirection || !selectedStation || !selectedPattern) {
       setFormError(
         "Choose a transit line, current station, and direction before requesting a walk.",
       );
       return;
     }
-    const destination = getNextStop(selectedDirection, selectedStation);
+    const destination = getNextStop(selectedPattern, selectedStation);
     if (!destination) {
       setFormError(
         "This is the final stop in the selected direction. Choose another station or direction.",
@@ -200,8 +197,8 @@ export function WalkingRouteFinder() {
   }
 
   const targetStop =
-    selectedDirection && selectedStation
-      ? getNextStop(selectedDirection, selectedStation)
+    selectedPattern && selectedStation
+      ? getNextStop(selectedPattern, selectedStation)
       : undefined;
   const mapUrl = targetStop
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${targetStop.latitude},${targetStop.longitude}`)}`
@@ -340,7 +337,7 @@ export function WalkingRouteFinder() {
             }
           >
             <Select
-              value={selectedStationId}
+              value={selectedStation?.id ?? ""}
               onChange={(_, data) => {
                 setSelectedStationId(data.value);
                 clearResult();
@@ -367,6 +364,7 @@ export function WalkingRouteFinder() {
               value={selectedDirection?.id ?? ""}
               onChange={(_, data) => {
                 setSelectedDirectionId(data.value);
+                setSelectedPatternId(AUTO_PATTERN);
                 clearResult();
               }}
             >
@@ -377,6 +375,38 @@ export function WalkingRouteFinder() {
               ))}
             </Select>
           </Field>
+          {selectedDirection && selectedDirection.patterns.length > 1 && (
+            <Field
+              label="Route variant"
+              validationState="none"
+              validationMessage={
+                selectedPattern
+                  ? `Runs ${describeSchedule(selectedPattern.schedule)}${
+                      selectedPatternId === AUTO_PATTERN
+                        ? " · picked for the current time"
+                        : ""
+                    }`
+                  : undefined
+              }
+            >
+              <Select
+                value={selectedPatternId}
+                onChange={(_, data) => {
+                  setSelectedPatternId(data.value);
+                  clearResult();
+                }}
+              >
+                <option value={AUTO_PATTERN}>
+                  Automatic (current time)
+                </option>
+                {selectedDirection.patterns.map((pattern) => (
+                  <option key={pattern.id} value={pattern.id}>
+                    {patternOptionLabel(pattern)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+          )}
           {formError && (
             <MessageBar intent="warning" className="form-message">
               <MessageBarBody>
@@ -509,8 +539,13 @@ function formatDuration(seconds: number): string {
   return `${Math.max(1, Math.round(seconds / 60))} min`;
 }
 
+function patternOptionLabel(pattern: TransitPattern): string {
+  const running = isRunningAt(pattern, new Date()) ? " · now" : "";
+  return `${pattern.label} · ${describeSchedule(pattern.schedule)}${running}`;
+}
+
 function getNextStop(
-  direction: TransitDirection,
+  direction: { stops: TransitStop[] },
   station: TransitStop,
 ): TransitStop | undefined {
   const currentIndex = direction.stops.findIndex(

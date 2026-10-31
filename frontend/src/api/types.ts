@@ -11,10 +11,26 @@ export interface TransitStop extends Coordinate {
   shortName?: string;
 }
 
+export interface ScheduleWindow {
+  days: 'mon-fri' | 'sat' | 'sun';
+  fromMinute: number;
+  toMinute: number;
+  trips: number;
+}
+
+export interface TransitPattern {
+  id: string;
+  label: string;
+  trips: number;
+  schedule: ScheduleWindow[];
+  stops: TransitStop[];
+}
+
 export interface TransitDirection {
   id: string;
   label: string;
   stops: TransitStop[];
+  patterns: TransitPattern[];
 }
 
 export interface TransitLine {
@@ -29,28 +45,6 @@ export interface TransitLine {
 
 export interface TransitCatalog {
   lines: TransitLine[];
-  stations: TransitStop[];
-}
-
-export interface DataGuideRecord {
-  dataset: string;
-  record: string;
-  coordinates: string;
-  status: 'Available';
-}
-
-export interface DatasetCoverage {
-  id: string;
-  title: string;
-  description: string;
-  source: string;
-  recordCount: number;
-}
-
-export interface DataGuide {
-  records: DataGuideRecord[];
-  coverage: DatasetCoverage[];
-  stationCount: number;
 }
 
 export interface WalkingDistanceTimeRequest {
@@ -74,7 +68,6 @@ export interface ServiceHealth {
 export interface ApiClient {
   getServiceHealth(): Promise<ServiceHealth>;
   getTransitCatalog(): Promise<TransitCatalog>;
-  getDataGuide(): Promise<DataGuide>;
   getWalkingEstimate(
     request: WalkingDistanceTimeRequest,
   ): Promise<WalkingDistanceTimeResponse | null>;
