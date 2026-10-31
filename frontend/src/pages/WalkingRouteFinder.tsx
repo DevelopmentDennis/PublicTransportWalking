@@ -276,10 +276,6 @@ export function WalkingRouteFinder() {
             </Button>
           </div>
         </div>
-        <div className="hero-stamp" aria-hidden="true">
-          <span>AVV</span>
-          <span>LOCAL NETWORK</span>
-        </div>
       </section>
 
       <section className="section-heading" aria-labelledby="lookup-title">

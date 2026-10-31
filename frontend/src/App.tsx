@@ -4,6 +4,7 @@ import { AnimatePresence } from "motion/react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AppShell } from "./components/AppShell";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
 
 const WalkingRouteFinder = lazy(() =>
   import("./pages/WalkingRouteFinder").then((module) => ({
@@ -25,6 +26,7 @@ function RoutedPages() {
               </Suspense>
             }
           />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

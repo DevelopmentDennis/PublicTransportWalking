@@ -129,12 +129,21 @@ a {
 }
 .site-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   gap: 16px;
   padding: 16px max(24px, calc((100vw - 1132px) / 2));
   color: var(--colorNeutralForeground3);
   border-top: 1px solid var(--colorNeutralStroke2);
   background: var(--colorNeutralBackground1);
+}
+.site-footer .footer-link {
+  color: inherit;
+  font-size: 12px;
+  text-decoration: none;
+}
+.site-footer .footer-link:hover {
+  color: var(--colorNeutralForeground1);
+  text-decoration: underline;
 }
 
 .finder-hero {
@@ -201,24 +210,6 @@ a {
 .finder-hero .hero-actions > :first-child {
   color: var(--brand-primary);
   background: white;
-}
-.hero-stamp {
-  position: absolute;
-  right: 28px;
-  bottom: 22px;
-  display: grid;
-  gap: 2px;
-  text-align: right;
-  opacity: 0.72;
-}
-.hero-stamp span:first-child {
-  font-size: 30px;
-  line-height: 1;
-  font-weight: 700;
-}
-.hero-stamp span:last-child {
-  font-size: 9px;
-  letter-spacing: 0.15em;
 }
 
 .section-heading {
@@ -450,6 +441,26 @@ a {
 }
 .data-intro-action {
   margin-top: 2px;
+}
+.privacy-section {
+  display: grid;
+  gap: 8px;
+  max-width: 780px;
+}
+.privacy-section h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+.privacy-section p,
+.privacy-section ul {
+  margin: 0;
+  color: var(--colorNeutralForeground3);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.privacy-section ul {
+  padding-left: 22px;
 }
 .data-section {
   display: grid;
@@ -731,16 +742,6 @@ a {
   }
   .hero-subtitle {
     font-size: 14px;
-  }
-  .hero-stamp {
-    right: 18px;
-    bottom: 14px;
-  }
-  .hero-stamp span:first-child {
-    font-size: 23px;
-  }
-  .hero-stamp span:last-child {
-    font-size: 8px;
   }
   .section-heading {
     align-items: flex-start;

@@ -144,9 +144,9 @@ export function AppShell() {
 
         <footer className="site-footer">
           <Text size={200}>Public Transport Walking · Augsburg</Text>
-          <Text size={200}>
-            Local transit assets · Walking estimates via route service
-          </Text>
+          <NavLink className="footer-link" to="/privacy">
+            Privacy Policy
+          </NavLink>
         </footer>
       </div>
     </FluentProvider>
