@@ -20,7 +20,7 @@ export interface ScheduleWindow {
 
 export interface TransitPattern {
   id: string;
-  label: string;
+  isMain: boolean;
   trips: number;
   schedule: ScheduleWindow[];
   stops: TransitStop[];
@@ -37,7 +37,7 @@ export interface TransitLine {
   id: string;
   mode: TransitMode;
   number: string;
-  label: string;
+  agency?: string;
   source: string;
   directions: TransitDirection[];
   stops: TransitStop[];

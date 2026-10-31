@@ -1,0 +1,111 @@
+{
+  "app": {
+    "title": "Public Transport Walking | Augsburg",
+    "name": "Public Transport Walking",
+    "place": "Augsburg network",
+    "homeLabel": "Public Transport Walking home",
+    "headerLabel": "Application header",
+    "footer": "Public Transport Walking · Augsburg",
+    "privacy": "Privacy Policy"
+  },
+  "service": {
+    "connected": "Walking service connected",
+    "unavailable": "Walking service unavailable",
+    "checking": "Checking walking service"
+  },
+  "theme": {
+    "system": "System theme",
+    "light": "Light theme",
+    "dark": "Dark theme",
+    "tooltip": "Change appearance · {{theme}}",
+    "aria": "Change appearance. Current setting: {{theme}}"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "state": {
+    "walkingUnavailable": "Walking provider temporarily unavailable",
+    "checkAgain": "Check again to retry the request.",
+    "retry": "Retry request"
+  },
+  "finder": {
+    "loading": "Loading Augsburg route records",
+    "loadErrorTitle": "Local transit data temporarily unavailable",
+    "loadErrorFallback": "Unable to load local transit data.",
+    "emptyTitle": "No local route records",
+    "emptyMessage": "No bundled transit records are available. Reload the local route data to try again.",
+    "emptyAction": "Reload route data",
+    "eyebrow": "Augsburg wayfinding console",
+    "title": "Find the walk to your next transit stop.",
+    "subtitle": "Choose a line, station, and direction to walk to the next stop before the next ride arrives.",
+    "planWalk": "Plan a station walk",
+    "lookupTitle": "Walking route lookup",
+    "lookupSubtitle": "Local route records paired with a walking estimate",
+    "networkReady": "Network data ready",
+    "cardHeader": "Choose your current ride",
+    "cardDescription": "Select where you are and the direction your service is heading.",
+    "line": "Transit line",
+    "lineRequired": "Choose a transit line.",
+    "station": "Current station",
+    "stationRequired": "Choose a current station.",
+    "stationHint": "The estimate targets the next stop in the selected direction.",
+    "direction": "Direction",
+    "directionRequired": "Choose a direction.",
+    "variant": "Route variant",
+    "variantRuns": "Runs {{schedule}}",
+    "variantAuto": " · picked for the current time",
+    "variantAutoOption": "Automatic (current time)",
+    "variantNow": " · now",
+    "submit": "Submit",
+    "submitting": "Finding the walk…",
+    "errorIncomplete": "Choose a transit line, current station, and direction before requesting a walk.",
+    "errorFinalStop": "This is the final stop in the selected direction. Choose another station or direction.",
+    "errorNoRoute": "No walking route is available for this selection. Choose another station or direction.",
+    "errorEstimate": "Unable to refresh the walking estimate.",
+    "nextStop": "{{line}} · next stop",
+    "walkTo": "Walk to {{stop}}",
+    "fromTo": "From {{station}} in the direction of {{direction}}.",
+    "distance": "Distance",
+    "walkingTime": "Walking time",
+    "noteLabel": "Note:",
+    "note": "Walking, bicycling, and two-wheel routes are in beta and might sometimes be missing clear sidewalks, pedestrian paths, or bicycling paths.",
+    "openMaps": "Open in Maps",
+    "close": "Close",
+    "calculating": "Calculating walking estimate",
+    "checkingRoute": "Checking the walking route…",
+    "providerNote": "Walking estimates are provided by the live Google Routes service."
+  },
+  "transit": {
+    "tram": "Tram line {{number}}",
+    "bus": "Bus {{number}}",
+    "withAgency": "{{name}} ({{agency}})",
+    "fullRoute": "Full route: {{first}} → {{last}} ({{count}} stops)",
+    "variantRoute": "Variant: {{first}} → {{last}} ({{count}} stops)"
+  },
+  "schedule": {
+    "none": "no timetable",
+    "mon-fri": "Mon–Fri",
+    "sat": "Sat",
+    "sun": "Sun"
+  },
+  "units": {
+    "meters": "{{value}} m",
+    "kilometers": "{{value}} km",
+    "minutes": "{{value}} min"
+  },
+  "api": {
+    "invalidHealth": "The walking service returned an invalid health response.",
+    "invalidEstimate": "The walking service returned an invalid estimate.",
+    "requestFailed": "Walking service request failed ({{status}})."
+  },
+  "notFound": {
+    "board1": "UNPLANNED DETOUR",
+    "board2": "NO SUCH STOP",
+    "eyebrow": "ROUTE DEVIATION",
+    "title": "Wrong stop.",
+    "text": "This page took the bus in the wrong direction. Even the driver says it's not on the route map.",
+    "back": "Back to the route finder"
+  }
+}

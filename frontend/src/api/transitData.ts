@@ -38,12 +38,6 @@ interface TransitIndex {
 
 const index = transitIndex as unknown as TransitIndex;
 
-function patternLabel(stops: TransitStop[], isMain: boolean): string {
-  const first = stops[0]!.name;
-  const last = stops.at(-1)!.name;
-  return `${isMain ? 'Full route' : 'Variant'}: ${first} → ${last} (${stops.length} stops)`;
-}
-
 function parseIndexLine(line: IndexLine): TransitLine | null {
   if (line.type !== 'tram' && line.type !== 'bus') return null;
   const mode: TransitMode = line.type;
@@ -62,7 +56,7 @@ function parseIndexLine(line: IndexLine): TransitLine | null {
       return [
         {
           id: `${base}-${dirIndex}-${patternIndex}`,
-          label: patternLabel(stops, patternIndex === 0),
+          isMain: patternIndex === 0,
           trips: schedule.reduce((sum, window) => sum + window.trips, 0),
           schedule,
           stops,
@@ -75,12 +69,11 @@ function parseIndexLine(line: IndexLine): TransitLine | null {
   if (directions.length === 0) return null;
 
   const hasSuffix = base !== line.line.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  const noun = mode === 'tram' ? 'Tram line' : 'Bus';
   return {
     id: `${mode}-${base}`,
     mode,
     number: line.line,
-    label: hasSuffix ? `${noun} ${line.line} (${line.agency})` : `${noun} ${line.line}`,
+    agency: hasSuffix ? line.agency : undefined,
     source: `assets/transit/index.json · ${line.file}`,
     directions,
     stops: uniqueStops(directions.flatMap((item) => item.patterns.flatMap((pattern) => pattern.stops))),
@@ -95,7 +88,7 @@ function uniqueStops(stops: TransitStop[]): TransitStop[] {
 
 function sortLines(left: TransitLine, right: TransitLine): number {
   if (left.mode !== right.mode) return left.mode === 'tram' ? -1 : 1;
-  return left.number.localeCompare(right.number, 'de', { numeric: true }) || left.label.localeCompare(right.label, 'de');
+  return left.number.localeCompare(right.number, 'de', { numeric: true }) || (left.agency ?? '').localeCompare(right.agency ?? '', 'de');
 }
 
 export function getLocalTransitCatalog(): TransitCatalog {

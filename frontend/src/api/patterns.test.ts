@@ -6,7 +6,7 @@ import type { TransitPattern } from "./types";
 function pattern(id: string, trips: number, from: number, to: number): TransitPattern {
   return {
     id,
-    label: id,
+    isMain: true,
     trips,
     schedule: [{ days: "mon-fri", fromMinute: from, toMinute: to, trips }],
     stops: [

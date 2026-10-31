@@ -1,0 +1,111 @@
+{
+  "app": {
+    "title": "Public Transport Walking | Augsburg",
+    "name": "Public Transport Walking",
+    "place": "Netz Augsburg",
+    "homeLabel": "Public Transport Walking Startseite",
+    "headerLabel": "Anwendungskopfzeile",
+    "footer": "Public Transport Walking · Augsburg",
+    "privacy": "Datenschutzerklärung"
+  },
+  "service": {
+    "connected": "Fußwege-Dienst verbunden",
+    "unavailable": "Fußwege-Dienst nicht verfügbar",
+    "checking": "Fußwege-Dienst wird geprüft"
+  },
+  "theme": {
+    "system": "Systemdesign",
+    "light": "Helles Design",
+    "dark": "Dunkles Design",
+    "tooltip": "Darstellung ändern · {{theme}}",
+    "aria": "Darstellung ändern. Aktuelle Einstellung: {{theme}}"
+  },
+  "language": {
+    "label": "Sprache",
+    "en": "English",
+    "de": "Deutsch"
+  },
+  "state": {
+    "walkingUnavailable": "Fußwege-Anbieter vorübergehend nicht verfügbar",
+    "checkAgain": "Prüfe es erneut, um die Anfrage zu wiederholen.",
+    "retry": "Anfrage wiederholen"
+  },
+  "finder": {
+    "loading": "Augsburger Streckendaten werden geladen",
+    "loadErrorTitle": "Lokale Nahverkehrsdaten vorübergehend nicht verfügbar",
+    "loadErrorFallback": "Lokale Nahverkehrsdaten konnten nicht geladen werden.",
+    "emptyTitle": "Keine lokalen Streckendaten",
+    "emptyMessage": "Es sind keine mitgelieferten Nahverkehrsdaten verfügbar. Lade die lokalen Streckendaten neu, um es erneut zu versuchen.",
+    "emptyAction": "Streckendaten neu laden",
+    "eyebrow": "Augsburger Wegfinder",
+    "title": "Finde den Fußweg zur nächsten Haltestelle.",
+    "subtitle": "Wähle Linie, Station und Richtung, um zur nächsten Haltestelle zu laufen, bevor die nächste Fahrt ankommt.",
+    "planWalk": "Fußweg zur Haltestelle planen",
+    "lookupTitle": "Fußweg-Suche",
+    "lookupSubtitle": "Lokale Streckendaten kombiniert mit einer Fußweg-Schätzung",
+    "networkReady": "Netzdaten bereit",
+    "cardHeader": "Wähle deine aktuelle Fahrt",
+    "cardDescription": "Wähle, wo du dich befindest und in welche Richtung dein Fahrzeug fährt.",
+    "line": "Linie",
+    "lineRequired": "Wähle eine Linie.",
+    "station": "Aktuelle Haltestelle",
+    "stationRequired": "Wähle eine aktuelle Haltestelle.",
+    "stationHint": "Die Schätzung bezieht sich auf die nächste Haltestelle in der gewählten Richtung.",
+    "direction": "Richtung",
+    "directionRequired": "Wähle eine Richtung.",
+    "variant": "Streckenvariante",
+    "variantRuns": "Verkehrt {{schedule}}",
+    "variantAuto": " · passend zur aktuellen Uhrzeit gewählt",
+    "variantAutoOption": "Automatisch (aktuelle Uhrzeit)",
+    "variantNow": " · jetzt",
+    "submit": "Absenden",
+    "submitting": "Fußweg wird gesucht…",
+    "errorIncomplete": "Wähle Linie, aktuelle Haltestelle und Richtung, bevor du einen Fußweg anfragst.",
+    "errorFinalStop": "Dies ist die Endhaltestelle in der gewählten Richtung. Wähle eine andere Haltestelle oder Richtung.",
+    "errorNoRoute": "Für diese Auswahl ist kein Fußweg verfügbar. Wähle eine andere Haltestelle oder Richtung.",
+    "errorEstimate": "Die Fußweg-Schätzung konnte nicht aktualisiert werden.",
+    "nextStop": "{{line}} · nächste Haltestelle",
+    "walkTo": "Fußweg nach {{stop}}",
+    "fromTo": "Von {{station}} in Richtung {{direction}}.",
+    "distance": "Entfernung",
+    "walkingTime": "Gehzeit",
+    "noteLabel": "Hinweis:",
+    "note": "Routen für Fußgänger, Fahrräder und Zweiräder befinden sich in der Beta-Phase und es können gelegentlich eindeutige Gehwege, Fußgängerwege oder Radwege fehlen.",
+    "openMaps": "In Karten öffnen",
+    "close": "Schließen",
+    "calculating": "Fußweg-Schätzung wird berechnet",
+    "checkingRoute": "Fußweg wird geprüft…",
+    "providerNote": "Fußweg-Schätzungen werden vom Live-Dienst Google Routes bereitgestellt."
+  },
+  "transit": {
+    "tram": "Straßenbahnlinie {{number}}",
+    "bus": "Bus {{number}}",
+    "withAgency": "{{name}} ({{agency}})",
+    "fullRoute": "Gesamtstrecke: {{first}} → {{last}} ({{count}} Haltestellen)",
+    "variantRoute": "Variante: {{first}} → {{last}} ({{count}} Haltestellen)"
+  },
+  "schedule": {
+    "none": "kein Fahrplan",
+    "mon-fri": "Mo–Fr",
+    "sat": "Sa",
+    "sun": "So"
+  },
+  "units": {
+    "meters": "{{value}} m",
+    "kilometers": "{{value}} km",
+    "minutes": "{{value}} Min."
+  },
+  "api": {
+    "invalidHealth": "Der Fußwege-Dienst hat eine ungültige Statusantwort geliefert.",
+    "invalidEstimate": "Der Fußwege-Dienst hat eine ungültige Schätzung geliefert.",
+    "requestFailed": "Anfrage an den Fußwege-Dienst fehlgeschlagen ({{status}})."
+  },
+  "notFound": {
+    "board1": "UNGEPLANTE UMLEITUNG",
+    "board2": "HALTESTELLE UNBEKANNT",
+    "eyebrow": "ROUTENABWEICHUNG",
+    "title": "Falsche Haltestelle.",
+    "text": "Diese Seite hat den Bus in die falsche Richtung genommen. Sogar der Fahrer sagt, sie steht nicht im Netzplan.",
+    "back": "Zurück zur Routensuche"
+  }
+}

@@ -14,6 +14,7 @@ import {
   Text,
   Title3,
 } from "@fluentui/react-components";
+import { useTranslation } from "react-i18next";
 
 interface LoadingStateProps {
   label: string;
@@ -54,20 +55,21 @@ export function LoadingState({ label }: LoadingStateProps) {
 export function ErrorState({
   message,
   onRetry,
-  title = "Walking provider temporarily unavailable",
+  title,
 }: ErrorStateProps) {
+  const { t } = useTranslation();
   return (
     <MessageBar intent="error" className="error-message">
       <WarningRegular />
       <MessageBarBody>
-        <MessageBarTitle>{title}</MessageBarTitle>
-        <Text>{message} Check again to retry the request.</Text>
+        <MessageBarTitle>{title ?? t("state.walkingUnavailable")}</MessageBarTitle>
+        <Text>{message} {t("state.checkAgain")}</Text>
         <Button
           appearance="secondary"
           icon={<ArrowClockwiseRegular />}
           onClick={onRetry}
         >
-          Retry request
+          {t("state.retry")}
         </Button>
       </MessageBarBody>
     </MessageBar>

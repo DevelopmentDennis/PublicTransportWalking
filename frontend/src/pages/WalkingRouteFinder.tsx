@@ -27,6 +27,8 @@ import {
   Title2,
 } from "@fluentui/react-components";
 import { AnimatePresence, motion } from "motion/react";
+import { useTranslation } from "react-i18next";
+import i18n from "../i18n";
 import { api } from "../api";
 import {
   describeSchedule,
@@ -40,10 +42,17 @@ import type {
   WalkingDistanceTimeResponse,
 } from "../api/types";
 import { EmptyState, ErrorState, LoadingState } from "../components/StateViews";
+import {
+  formatDistance,
+  formatDuration,
+  lineLabel,
+  patternLabel,
+} from "../i18n/format";
 
 const AUTO_PATTERN = "auto";
 
 export function WalkingRouteFinder() {
+  const { t } = useTranslation();
   const [catalog, setCatalog] = useState<TransitCatalog | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -73,7 +82,7 @@ export function WalkingRouteFinder() {
           setLoadError(
             error instanceof Error
               ? error.message
-              : "Unable to load local transit data.",
+              : t("finder.loadErrorFallback"),
           );
       })
       .finally(() => {
@@ -132,16 +141,12 @@ export function WalkingRouteFinder() {
     event?.preventDefault();
     clearResult();
     if (!selectedLine || !selectedDirection || !selectedStation || !selectedPattern) {
-      setFormError(
-        "Choose a transit line, current station, and direction before requesting a walk.",
-      );
+      setFormError(t("finder.errorIncomplete"));
       return;
     }
     const destination = getNextStop(selectedPattern, selectedStation);
     if (!destination) {
-      setFormError(
-        "This is the final stop in the selected direction. Choose another station or direction.",
-      );
+      setFormError(t("finder.errorFinalStop"));
       return;
     }
 
@@ -158,9 +163,7 @@ export function WalkingRouteFinder() {
         },
       });
       if (!result) {
-        setFormError(
-          "No walking route is available for this selection. Choose another station or direction.",
-        );
+        setFormError(t("finder.errorNoRoute"));
         return;
       }
       setEstimate(result);
@@ -168,18 +171,18 @@ export function WalkingRouteFinder() {
       setEstimateError(
         error instanceof Error
           ? error.message
-          : "Unable to refresh the walking estimate.",
+          : t("finder.errorEstimate"),
       );
     } finally {
       setSubmitting(false);
     }
   }
 
-  if (loading) return <LoadingState label="Loading Augsburg route records" />;
+  if (loading) return <LoadingState label={t("finder.loading")} />;
   if (loadError) {
     return (
       <ErrorState
-        title="Local transit data temporarily unavailable"
+        title={t("finder.loadErrorTitle")}
         message={loadError}
         onRetry={() => setRetryKey((current) => current + 1)}
       />
@@ -188,9 +191,9 @@ export function WalkingRouteFinder() {
   if (!catalog || catalog.lines.length === 0) {
     return (
       <EmptyState
-        title="No local route records"
-        message="No bundled transit records are available. Reload the local route data to try again."
-        actionLabel="Reload route data"
+        title={t("finder.emptyTitle")}
+        message={t("finder.emptyMessage")}
+        actionLabel={t("finder.emptyAction")}
         onAction={() => setRetryKey((current) => current + 1)}
       />
     );
@@ -250,15 +253,10 @@ export function WalkingRouteFinder() {
         <div className="hero-content">
           <Text className="eyebrow">
             <span className="eyebrow-dot" />
-            Augsburg wayfinding console
+            {t("finder.eyebrow")}
           </Text>
-          <Title1 id="finder-title">
-            Find the walk to your next transit stop.
-          </Title1>
-          <Text className="hero-subtitle">
-            Choose a line, station, and direction to walk to the next stop
-            before the next ride arrives.
-          </Text>
+          <Title1 id="finder-title">{t("finder.title")}</Title1>
+          <Text className="hero-subtitle">{t("finder.subtitle")}</Text>
           <div className="hero-actions">
             <Button
               appearance="primary"
@@ -269,7 +267,7 @@ export function WalkingRouteFinder() {
                   ?.scrollIntoView({ behavior: "smooth" })
               }
             >
-              Plan a station walk
+              {t("finder.planWalk")}
             </Button>
           </div>
         </div>
@@ -279,23 +277,21 @@ export function WalkingRouteFinder() {
         <div>
           <Title2 id="lookup-title">
             <LocationRegular />
-            Walking route lookup
+            {t("finder.lookupTitle")}
           </Title2>
-          <Text>Local route records paired with a walking estimate</Text>
+          <Text>{t("finder.lookupSubtitle")}</Text>
         </div>
         <span className="availability-badge">
           <span className="status-dot" />
-          Network data ready
+          {t("finder.networkReady")}
         </span>
       </section>
 
       <Card className="lookup-card">
         <CardHeader
-          header={<Text weight="semibold">Choose your current ride</Text>}
+          header={<Text weight="semibold">{t("finder.cardHeader")}</Text>}
           description={
-            <Text size={200}>
-              Select where you are and the direction your service is heading.
-            </Text>
+            <Text size={200}>{t("finder.cardDescription")}</Text>
           }
           className="lookup-card-header"
         />
@@ -306,11 +302,11 @@ export function WalkingRouteFinder() {
           noValidate
         >
           <Field
-            label="Transit line"
+            label={t("finder.line")}
             required
             validationState={formError && !selectedLine ? "error" : "none"}
             validationMessage={
-              formError && !selectedLine ? "Choose a transit line." : undefined
+              formError && !selectedLine ? t("finder.lineRequired") : undefined
             }
           >
             <Select
@@ -319,21 +315,21 @@ export function WalkingRouteFinder() {
             >
               {catalog.lines.map((line) => (
                 <option key={line.id} value={line.id}>
-                  {line.label}
+                  {lineLabel(line)}
                 </option>
               ))}
             </Select>
           </Field>
           <Field
-            label="Current station"
+            label={t("finder.station")}
             required
             validationState={
               formError && !selectedStation ? "error" : "warning"
             }
             validationMessage={
               formError && !selectedStation
-                ? "Choose a current station."
-                : "The estimate targets the next stop in the selected direction."
+                ? t("finder.stationRequired")
+                : t("finder.stationHint")
             }
           >
             <Select
@@ -351,12 +347,12 @@ export function WalkingRouteFinder() {
             </Select>
           </Field>
           <Field
-            label="Direction"
+            label={t("finder.direction")}
             required
             validationState={formError && !selectedDirection ? "error" : "none"}
             validationMessage={
               formError && !selectedDirection
-                ? "Choose a direction."
+                ? t("finder.directionRequired")
                 : undefined
             }
           >
@@ -377,13 +373,15 @@ export function WalkingRouteFinder() {
           </Field>
           {selectedDirection && selectedDirection.patterns.length > 1 && (
             <Field
-              label="Route variant"
+              label={t("finder.variant")}
               validationState="none"
               validationMessage={
                 selectedPattern
-                  ? `Runs ${describeSchedule(selectedPattern.schedule)}${
+                  ? `${t("finder.variantRuns", {
+                      schedule: describeSchedule(selectedPattern.schedule),
+                    })}${
                       selectedPatternId === AUTO_PATTERN
-                        ? " · picked for the current time"
+                        ? t("finder.variantAuto")
                         : ""
                     }`
                   : undefined
@@ -397,7 +395,7 @@ export function WalkingRouteFinder() {
                 }}
               >
                 <option value={AUTO_PATTERN}>
-                  Automatic (current time)
+                  {t("finder.variantAutoOption")}
                 </option>
                 {selectedDirection.patterns.map((pattern) => (
                   <option key={pattern.id} value={pattern.id}>
@@ -430,7 +428,7 @@ export function WalkingRouteFinder() {
               icon={<ArrowRightRegular />}
               disabled={submitting}
             >
-              {submitting ? "Finding the walk…" : "Submit"}
+              {submitting ? t("finder.submitting") : t("finder.submit")}
             </Button>
           </div>
         </form>
@@ -458,22 +456,26 @@ export function WalkingRouteFinder() {
                 >
                   <DialogBody>
                     <Text className="result-kicker">
-                      {selectedLine.label} · next stop
+                      {t("finder.nextStop", { line: lineLabel(selectedLine) })}
                     </Text>
-                    <DialogTitle>Walk to {targetStop.name}</DialogTitle>
+                    <DialogTitle>
+                      {t("finder.walkTo", { stop: targetStop.name })}
+                    </DialogTitle>
                     <DialogContent>
-                      From {selectedStation.name} in the direction of{" "}
-                      {selectedDirection?.label}.
+                      {t("finder.fromTo", {
+                        station: selectedStation.name,
+                        direction: selectedDirection?.label,
+                      })}
                     </DialogContent>
                     <div className="result-stats">
                       <div>
-                        <Text size={200}>Distance</Text>
+                        <Text size={200}>{t("finder.distance")}</Text>
                         <strong>
                           {formatDistance(estimate.distanceMeters)}
                         </strong>
                       </div>
                       <div>
-                        <Text size={200}>Walking time</Text>
+                        <Text size={200}>{t("finder.walkingTime")}</Text>
                         <strong>
                           {formatDuration(estimate.durationSeconds)}
                         </strong>
@@ -481,9 +483,8 @@ export function WalkingRouteFinder() {
                     </div>
                     <MessageBar intent="warning">
                       <MessageBarBody>
-                        <strong>Note:</strong> Walking, bicycling, and two-wheel
-                        routes are in beta and might sometimes be missing clear
-                        sidewalks, pedestrian paths, or bicycling paths.
+                        <strong>{t("finder.noteLabel")}</strong>{" "}
+                        {t("finder.note")}
                       </MessageBarBody>
                     </MessageBar>
                     <DialogActions>
@@ -495,13 +496,13 @@ export function WalkingRouteFinder() {
                         rel="noopener noreferrer"
                         icon={<ArrowUpRightRegular />}
                       >
-                        Open in Maps
+                        {t("finder.openMaps")}
                       </Button>
                       <Button
                         appearance="subtle"
                         onClick={() => setEstimate(null)}
                       >
-                        Close
+                        {t("finder.close")}
                       </Button>
                     </DialogActions>
                   </DialogBody>
@@ -513,35 +514,25 @@ export function WalkingRouteFinder() {
 
       {submitting && (
         <Card className="estimate-loading">
-          <Skeleton aria-label="Calculating walking estimate">
+          <Skeleton aria-label={t("finder.calculating")}>
             <SkeletonItem shape="rectangle" size={20} />
           </Skeleton>
-          <Text>Checking the walking route…</Text>
+          <Text>{t("finder.checkingRoute")}</Text>
           <ClockRegular />
         </Card>
       )}
       <div className="page-note">
-        <Text size={200}>
-          Walking estimates are provided by the live Google Routes service.
-        </Text>
+        <Text size={200}>{t("finder.providerNote")}</Text>
       </div>
     </motion.div>
   );
 }
 
-function formatDistance(meters: number): string {
-  return meters >= 1000
-    ? `${(meters / 1000).toLocaleString("en", { maximumFractionDigits: 1 })} km`
-    : `${meters} m`;
-}
-
-function formatDuration(seconds: number): string {
-  return `${Math.max(1, Math.round(seconds / 60))} min`;
-}
-
 function patternOptionLabel(pattern: TransitPattern): string {
-  const running = isRunningAt(pattern, new Date()) ? " · now" : "";
-  return `${pattern.label} · ${describeSchedule(pattern.schedule)}${running}`;
+  const running = isRunningAt(pattern, new Date())
+    ? i18n.t("finder.variantNow")
+    : "";
+  return `${patternLabel(pattern)} · ${describeSchedule(pattern.schedule)}${running}`;
 }
 
 function getNextStop(

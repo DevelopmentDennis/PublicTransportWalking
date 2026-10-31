@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  GlobeRegular,
   HomeRegular,
   WeatherMoonRegular,
   WeatherSunnyRegular,
@@ -7,12 +8,19 @@ import {
 import {
   Button,
   FluentProvider,
+  Menu,
+  MenuItemRadio,
+  MenuList,
+  MenuPopover,
+  MenuTrigger,
   Text,
   Toolbar,
   Tooltip,
 } from "@fluentui/react-components";
+import { useTranslation } from "react-i18next";
 import { NavLink, Outlet } from "react-router-dom";
 import { api } from "../api";
+import i18n, { SUPPORTED_LANGUAGES, resolveLanguage } from "../i18n";
 import { darkTheme, lightTheme } from "../theme";
 
 type ThemePreference = "light" | "dark" | "system";
@@ -32,6 +40,7 @@ function resolveTheme(preference: ThemePreference): "light" | "dark" {
 }
 
 export function AppShell() {
+  const { t } = useTranslation();
   const [preference, setPreference] =
     useState<ThemePreference>(readThemePreference);
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() =>
@@ -87,28 +96,28 @@ export function AppShell() {
 
   const themeIcon =
     resolvedTheme === "dark" ? <WeatherSunnyRegular /> : <WeatherMoonRegular />;
-  const themeLabel =
-    preference === "system" ? "System theme" : `${preference} theme`;
+  const themeLabel = t(`theme.${preference}`);
+  const currentLanguage = resolveLanguage([i18n.language]);
 
   return (
     <FluentProvider theme={resolvedTheme === "dark" ? darkTheme : lightTheme}>
       <div className="app-frame">
         <header className="site-header">
-          <Toolbar className="site-toolbar" aria-label="Application header">
+          <Toolbar className="site-toolbar" aria-label={t("app.headerLabel")}>
             <NavLink
               className="brand-lockup"
               to="/"
-              aria-label="Public Transport Walking home"
+              aria-label={t("app.homeLabel")}
             >
               <span className="brand-mark">
                 <HomeRegular />
               </span>
               <span>
                 <Text weight="semibold" className="brand-name">
-                  Public Transport Walking
+                  {t("app.name")}
                 </Text>
                 <Text size={200} className="brand-place">
-                  Augsburg network
+                  {t("app.place")}
                 </Text>
               </span>
             </NavLink>
@@ -117,20 +126,46 @@ export function AppShell() {
                 <span
                   className={`status-dot${serviceStatus === "unavailable" ? " status-dot--offline" : ""}`}
                 />
-                {serviceStatus === "connected"
-                  ? "Walking service connected"
-                  : serviceStatus === "unavailable"
-                    ? "Walking service unavailable"
-                    : "Checking walking service"}
+                {t(`service.${serviceStatus}`)}
               </Text>
+              <Menu
+                checkedValues={{ language: [currentLanguage] }}
+                onCheckedValueChange={(_, data) => {
+                  const next = data.checkedItems[0];
+                  if (next) void i18n.changeLanguage(next);
+                }}
+              >
+                <MenuTrigger disableButtonEnhancement>
+                  <Tooltip content={t("language.label")} relationship="label">
+                    <Button
+                      appearance="subtle"
+                      icon={<GlobeRegular />}
+                      aria-label={t("language.label")}
+                    />
+                  </Tooltip>
+                </MenuTrigger>
+                <MenuPopover>
+                  <MenuList>
+                    {SUPPORTED_LANGUAGES.map((language) => (
+                      <MenuItemRadio
+                        key={language}
+                        name="language"
+                        value={language}
+                      >
+                        {t(`language.${language}`)}
+                      </MenuItemRadio>
+                    ))}
+                  </MenuList>
+                </MenuPopover>
+              </Menu>
               <Tooltip
-                content={`Change appearance · ${themeLabel}`}
+                content={t("theme.tooltip", { theme: themeLabel })}
                 relationship="label"
               >
                 <Button
                   appearance="subtle"
                   icon={themeIcon}
-                  aria-label={`Change appearance. Current setting: ${themeLabel}`}
+                  aria-label={t("theme.aria", { theme: themeLabel })}
                   onClick={cycleTheme}
                 />
               </Tooltip>
@@ -143,9 +178,9 @@ export function AppShell() {
         </main>
 
         <footer className="site-footer">
-          <Text size={200}>Public Transport Walking · Augsburg</Text>
+          <Text size={200}>{t("app.footer")}</Text>
           <NavLink className="footer-link" to="/privacy">
-            Privacy Policy
+            {t("app.privacy")}
           </NavLink>
         </footer>
       </div>

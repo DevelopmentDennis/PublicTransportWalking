@@ -1,3 +1,4 @@
+import i18n from '../i18n';
 import type {
   ScheduleWindow,
   TransitPattern,
@@ -23,18 +24,12 @@ export function formatMinutes(minutes: number): string {
   return `${String(hours).padStart(2, '0')}:${String(wrapped % 60).padStart(2, '0')}`;
 }
 
-const dayLabels: Record<ScheduleWindow['days'], string> = {
-  'mon-fri': 'Mon–Fri',
-  sat: 'Sat',
-  sun: 'Sun',
-};
-
 export function describeSchedule(schedule: ScheduleWindow[]): string {
-  if (schedule.length === 0) return 'no timetable';
+  if (schedule.length === 0) return i18n.t('schedule.none');
   return schedule
     .map(
       (window) =>
-        `${dayLabels[window.days]} ${formatMinutes(window.fromMinute)}–${formatMinutes(window.toMinute)}`,
+        `${i18n.t(`schedule.${window.days}`)} ${formatMinutes(window.fromMinute)}–${formatMinutes(window.toMinute)}`,
     )
     .join(', ');
 }

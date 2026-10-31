@@ -1,3 +1,4 @@
+import i18n from '../i18n';
 import { getLocalTransitCatalog } from './transitData';
 import type {
   ApiClient,
@@ -38,7 +39,7 @@ function parseServiceHealth(value: unknown): ServiceHealth {
     !('functions' in value.services) || typeof value.services.functions !== 'string' ||
     !('walkingRoutes' in value.services) || typeof value.services.walkingRoutes !== 'string'
   ) {
-    throw new Error('The walking service returned an invalid health response.');
+    throw new Error(i18n.t('api.invalidHealth'));
   }
   return value as ServiceHealth;
 }
@@ -49,12 +50,12 @@ function parseWalkingEstimate(value: unknown): WalkingDistanceTimeResponse {
     !('distanceMeters' in value) || typeof value.distanceMeters !== 'number' || !Number.isFinite(value.distanceMeters) ||
     !('durationSeconds' in value) || typeof value.durationSeconds !== 'number' || !Number.isFinite(value.durationSeconds)
   ) {
-    throw new Error('The walking service returned an invalid estimate.');
+    throw new Error(i18n.t('api.invalidEstimate'));
   }
   return { distanceMeters: value.distanceMeters, durationSeconds: value.durationSeconds };
 }
 
 async function readErrorMessage(response: Response): Promise<string> {
   const message = (await response.text()).trim();
-  return message || `Walking service request failed (${response.status}).`;
+  return message || i18n.t('api.requestFailed', { status: response.status });
 }
