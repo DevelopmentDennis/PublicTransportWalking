@@ -17,11 +17,14 @@ on:
     branches: ["main"]
     paths:
       - "frontend/**"
+      - ".github/workflows/azure-staticwebapp.yml"
+
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches: ["main"]
     paths:
       - "frontend/**"
+      - ".github/workflows/azure-staticwebapp.yml"
 
 # Environment variables available to all jobs and steps in this workflow
 env:
