@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from './index';
 
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api';
+
 afterEach(() => vi.unstubAllGlobals());
 
 describe('live walking API client', () => {
@@ -15,7 +17,7 @@ describe('live walking API client', () => {
       destination: { latitude: 48.338303, longitude: 10.867737 },
     });
 
-    expect(fetchMock).toHaveBeenCalledWith('/api/GetDistanceTime', {
+    expect(fetchMock).toHaveBeenCalledWith(`${apiBaseUrl}/GetDistanceTime`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -50,6 +52,6 @@ describe('live walking API client', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(api.getServiceHealth()).resolves.toEqual(health);
-    expect(fetchMock).toHaveBeenCalledWith('/api/health');
+    expect(fetchMock).toHaveBeenCalledWith(`${apiBaseUrl}/health`);
   });
 });

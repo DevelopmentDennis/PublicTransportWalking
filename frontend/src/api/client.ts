@@ -7,9 +7,11 @@ import type {
   WalkingDistanceTimeResponse,
 } from './types';
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '/api').replace(/\/+$/, '');
+
 export const liveClient: ApiClient = {
   async getServiceHealth() {
-    const response = await fetch('/api/health');
+    const response = await fetch(`${API_BASE_URL}/health`);
     if (!response.ok) throw new Error(await readErrorMessage(response));
     return parseServiceHealth(await response.json());
   },
@@ -19,7 +21,7 @@ export const liveClient: ApiClient = {
   },
 
   async getWalkingEstimate(request: WalkingDistanceTimeRequest) {
-    const response = await fetch('/api/GetDistanceTime', {
+    const response = await fetch(`${API_BASE_URL}/GetDistanceTime`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),

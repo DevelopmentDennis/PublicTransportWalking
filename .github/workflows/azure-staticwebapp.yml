@@ -28,8 +28,8 @@ on:
 
 # Environment variables available to all jobs and steps in this workflow
 env:
-  APP_LOCATION: "/" # location of your client code
-  API_LOCATION: "api" # location of your api source code - optional
+  APP_LOCATION: "frontend" # location of your client code
+  API_LOCATION: "" # API is deployed separately in the Function App
   APP_ARTIFACT_LOCATION: "dist" # location of client code build output
   AZURE_STATIC_WEB_APPS_API_TOKEN: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }} # secret containing deployment token for your static web app
 
@@ -50,6 +50,8 @@ jobs:
           submodules: true
       - name: Build And Deploy
         id: builddeploy
+        env:
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ env.AZURE_STATIC_WEB_APPS_API_TOKEN }} # secret containing api token for app
