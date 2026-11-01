@@ -54,4 +54,4 @@ pnpm-debug.log*
 *.log
 .github/upgrades
 .azure
-.github
+.github/agents
