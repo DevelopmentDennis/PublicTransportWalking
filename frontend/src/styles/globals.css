@@ -273,6 +273,13 @@ a {
   align-items: start;
   gap: 16px;
 }
+/* Native <select> sizes to its longest option; let fields shrink so
+   long station/direction names don't overflow the card on mobile. */
+.route-form .fui-Field,
+.route-form .fui-Select,
+.route-form .fui-Select__select {
+  min-width: 0;
+}
 .route-form [role="combobox"] {
   min-height: 44px;
 }
@@ -649,7 +656,7 @@ a {
     padding: 16px;
   }
   .route-form {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
   }
   .form-actions {
