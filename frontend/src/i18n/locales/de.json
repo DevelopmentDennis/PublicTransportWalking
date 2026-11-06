@@ -48,6 +48,8 @@
     "cardDescription": "Wähle, wo du dich befindest und in welche Richtung dein Fahrzeug fährt.",
     "line": "Linie",
     "lineRequired": "Wähle eine Linie.",
+    "linePlaceholder": "Tippen, um Linien zu filtern…",
+    "lineNoResults": "Keine passenden Linien gefunden.",
     "station": "Aktuelle Haltestelle",
     "stationRequired": "Wähle eine aktuelle Haltestelle.",
     "stationHint": "Die Schätzung bezieht sich auf die nächste Haltestelle in der gewählten Richtung.",

@@ -48,6 +48,8 @@
     "cardDescription": "Select where you are and the direction your service is heading.",
     "line": "Transit line",
     "lineRequired": "Choose a transit line.",
+    "linePlaceholder": "Type to filter lines…",
+    "lineNoResults": "No lines match your search.",
     "station": "Current station",
     "stationRequired": "Choose a current station.",
     "stationHint": "The estimate targets the next stop in the selected direction.",

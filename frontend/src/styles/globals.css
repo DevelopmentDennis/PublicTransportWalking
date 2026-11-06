@@ -273,14 +273,22 @@ a {
   align-items: start;
   gap: 16px;
 }
-/* Native <select> sizes to its longest option; let fields shrink so
-   long station/direction names don't overflow the card on mobile. */
+/* Native <select> sizes to its longest option and Combobox has a 250px
+   min-width; let fields shrink so long option text doesn't overflow the
+   card on mobile. */
 .route-form .fui-Field,
 .route-form .fui-Select,
-.route-form .fui-Select__select {
+.route-form .fui-Select__select,
+.route-form .fui-Combobox,
+.route-form .fui-Combobox__input {
   min-width: 0;
 }
-.route-form [role="combobox"] {
+.route-form .fui-Combobox {
+  width: 100%;
+}
+.route-form .fui-Select,
+.route-form .fui-Select__select,
+.route-form .fui-Combobox {
   min-height: 44px;
 }
 .form-actions {

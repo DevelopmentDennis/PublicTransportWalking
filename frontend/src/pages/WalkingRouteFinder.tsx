@@ -10,6 +10,7 @@ import {
   Button,
   Card,
   CardHeader,
+  Combobox,
   Dialog,
   DialogActions,
   DialogBody,
@@ -19,6 +20,7 @@ import {
   Field,
   MessageBar,
   MessageBarBody,
+  Option,
   Select,
   Skeleton,
   SkeletonItem,
@@ -61,6 +63,7 @@ export function WalkingRouteFinder() {
   const [selectedStationId, setSelectedStationId] = useState("");
   const [selectedDirectionId, setSelectedDirectionId] = useState("");
   const [selectedPatternId, setSelectedPatternId] = useState(AUTO_PATTERN);
+  const [lineQuery, setLineQuery] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [estimateError, setEstimateError] = useState<string | null>(null);
   const [estimate, setEstimate] = useState<WalkingDistanceTimeResponse | null>(
@@ -119,6 +122,16 @@ export function WalkingRouteFinder() {
       ),
     [selectedLine],
   );
+  // Not memoized so labels follow the active UI language.
+  const lineFilter = lineQuery?.trim().toLocaleLowerCase() ?? "";
+  const filteredLines =
+    catalog == null || lineFilter === ""
+      ? (catalog?.lines ?? [])
+      : catalog.lines.filter((line) =>
+          `${lineLabel(line)} ${line.id}`
+            .toLocaleLowerCase()
+            .includes(lineFilter),
+        );
 
   function handleLineChange(lineId: string): void {
     const line = catalog?.lines.find((item) => item.id === lineId);
@@ -309,16 +322,36 @@ export function WalkingRouteFinder() {
               formError && !selectedLine ? t("finder.lineRequired") : undefined
             }
           >
-            <Select
-              value={selectedLine?.id ?? ""}
-              onChange={(_, data) => handleLineChange(data.value)}
+            <Combobox
+              freeform
+              value={lineQuery ?? (selectedLine ? lineLabel(selectedLine) : "")}
+              selectedOptions={selectedLine ? [selectedLine.id] : []}
+              placeholder={t("finder.linePlaceholder")}
+              onChange={(event) => setLineQuery(event.target.value)}
+              onOptionSelect={(_, data) => {
+                // Also fires with optionValue undefined when typing clears the
+                // selection; only react to an actual option pick.
+                if (!data.optionValue) return;
+                handleLineChange(data.optionValue);
+                setLineQuery(null);
+              }}
+              onBlur={() => setLineQuery(null)}
             >
-              {catalog.lines.map((line) => (
-                <option key={line.id} value={line.id}>
+              {filteredLines.map((line) => (
+                <Option key={line.id} value={line.id} text={lineLabel(line)}>
                   {lineLabel(line)}
-                </option>
+                </Option>
               ))}
-            </Select>
+              {filteredLines.length === 0 && (
+                <Option
+                  disabled
+                  value="__no-results"
+                  text={t("finder.lineNoResults")}
+                >
+                  {t("finder.lineNoResults")}
+                </Option>
+              )}
+            </Combobox>
           </Field>
           <Field
             label={t("finder.station")}
