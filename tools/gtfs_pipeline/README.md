@@ -20,9 +20,11 @@ Other flags: `--force-download`, `--no-download` (use the cached zip).
 |---|---|
 | `lines/<type>_<line>[_<agency>].json` | One file per line. Directions with ordered `stops`, plus `variants` (short-turn or alternative routes) |
 | `stops.json` | Region stations with their platforms |
-| `index.json` | Compact lookup for the backend: stations once, line sequences as ID lists |
+| `index.json` | Compact lookup: stations and platforms once, with station and platform ID sequences for each pattern |
 
 Every direction and variant carries a `schedule`: windows of first-stop departures per day type (`mon-fri`, `sat`, `sun`), e.g. `{"days":"mon-fri","from":"14:04","to":"19:04","fromMin":844,"toMin":1144,"trips":8}`. Departures less than 90 minutes apart form one window; times past midnight keep minutes above 1440. In `index.json` this is `sch`, parallel to `seq`, as `[days, fromMin, toMin, trips]`.
+
+The index's `plat` sequences parallel `seq`: each occurrence refers to the platform selected for that pattern, while `seq` retains the parent station ID. For trips with the same station sequence but different platforms, the most frequent platform sequence is used.
 
 Stop IDs are the feed's numeric `stop_id`s. They can change between feed versions, so always rebuild everything and replace the whole output.
 

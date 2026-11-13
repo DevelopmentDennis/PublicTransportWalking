@@ -380,8 +380,9 @@ def write_outputs(cfg, lines, stops, platforms, state):
     station_list = sorted(stations.values(), key=lambda s: (s["name"], s["id"]))
     (out / "stops.json").write_text(json.dumps(station_list, ensure_ascii=False, indent=1), encoding="utf-8")
 
-    # compact index for the backend: stations once, sequences as id lists
+    # Keep station identity separate from the platform used by each stop occurrence.
     used = {}
+    used_platforms = {}
     index_lines = []
     for ln in sorted(lines, key=lambda x: (x["type"], x["line"], x["agency"])):
         dirs = []
@@ -389,13 +390,16 @@ def write_outputs(cfg, lines, stops, platforms, state):
             seqs = [d["stops"]] + [v["stops"] for v in d.get("variants", [])]
             scheds = [d["schedule"]] + [v["schedule"] for v in d.get("variants", [])]
             for s in (x for sq in seqs for x in sq):
-                used[s["id"]] = {"n": s["name"], "la": s["coord"]["lat"], "lo": s["coord"]["lng"]}
+                used[s["id"]] = {"n": s["name"]}
+                used_platforms[s["platformId"]] = {"la": s["coord"]["lat"], "lo": s["coord"]["lng"]}
             dirs.append({"d": d["direction"], "hs": d["headsign"], "seq": [[s["id"] for s in sq] for sq in seqs],
+                         "plat": [[s["platformId"] for s in sq] for sq in seqs],
                          "sch": [[[w["days"], w["fromMin"], w["toMin"], w["trips"]] for w in sc] for sc in scheds]})
         index_lines.append({"file": ln["file"], "line": ln["line"], "agency": ln["agency"], "type": ln["type"],
                             "name": ln["name"], "dirs": dirs})
     index = {"generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-             "feedLastModified": state.get("lastModified"), "stations": used, "lines": index_lines}
+             "feedLastModified": state.get("lastModified"), "stations": used, "platforms": used_platforms,
+             "lines": index_lines}
     (out / "index.json").write_text(json.dumps(index, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return len(station_list)
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { describeSchedule, pickPattern } from "./patterns";
+import { describeSchedule, getWalkingStops, pickPattern } from "./patterns";
 import { getLocalTransitCatalog } from "./transitData";
 import type { TransitPattern } from "./types";
 
@@ -25,6 +25,18 @@ describe("pickPattern", () => {
   it("picks the pattern running at the given time", () => {
     expect(pickPattern([morning, afternoon], at(9))?.id).toBe("morning");
     expect(pickPattern([morning, afternoon], at(15))?.id).toBe("afternoon");
+  });
+
+  describe("getWalkingStops", () => {
+    it("uses the selected pattern's platforms, not the station list's coordinates", () => {
+      const route = pattern("route", 1, 0, 60);
+      route.stops[0]!.latitude = 1;
+      route.stops[1]!.latitude = 2;
+      const selectedStation = { ...route.stops[0]!, latitude: 99 };
+      expect(getWalkingStops(route, selectedStation)).toEqual(route.stops);
+      expect(getWalkingStops(route, route.stops[1]!)).toBeUndefined();
+      expect(getWalkingStops(route, { ...selectedStation, id: "missing", name: "missing" })).toBeUndefined();
+    });
   });
 
   it("keeps a pattern active while its last trip is still running", () => {

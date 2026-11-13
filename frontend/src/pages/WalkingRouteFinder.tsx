@@ -34,13 +34,13 @@ import i18n from "../i18n";
 import { api } from "../api";
 import {
   describeSchedule,
+  getWalkingStops,
   isRunningAt,
   pickPattern,
 } from "../api/patterns";
 import type {
   TransitCatalog,
   TransitPattern,
-  TransitStop,
   WalkingDistanceTimeResponse,
 } from "../api/types";
 import { EmptyState, ErrorState, LoadingState } from "../components/StateViews";
@@ -157,18 +157,19 @@ export function WalkingRouteFinder() {
       setFormError(t("finder.errorIncomplete"));
       return;
     }
-    const destination = getNextStop(selectedPattern, selectedStation);
-    if (!destination) {
+    const walkingStops = getWalkingStops(selectedPattern, selectedStation);
+    if (!walkingStops) {
       setFormError(t("finder.errorFinalStop"));
       return;
     }
+    const [origin, destination] = walkingStops;
 
     setSubmitting(true);
     try {
       const result = await api.getWalkingEstimate({
         origin: {
-          latitude: selectedStation.latitude,
-          longitude: selectedStation.longitude,
+          latitude: origin.latitude,
+          longitude: origin.longitude,
         },
         destination: {
           latitude: destination.latitude,
@@ -214,7 +215,7 @@ export function WalkingRouteFinder() {
 
   const targetStop =
     selectedPattern && selectedStation
-      ? getNextStop(selectedPattern, selectedStation)
+      ? getWalkingStops(selectedPattern, selectedStation)?.[1]
       : undefined;
   const mapUrl = targetStop
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${targetStop.latitude},${targetStop.longitude}`)}`
@@ -566,15 +567,4 @@ function patternOptionLabel(pattern: TransitPattern): string {
     ? i18n.t("finder.variantNow")
     : "";
   return `${patternLabel(pattern)} · ${describeSchedule(pattern.schedule)}${running}`;
-}
-
-function getNextStop(
-  direction: { stops: TransitStop[] },
-  station: TransitStop,
-): TransitStop | undefined {
-  const currentIndex = direction.stops.findIndex(
-    (stop) => stop.id === station.id || stop.name === station.name,
-  );
-  if (currentIndex < 0) return direction.stops.at(-1);
-  return direction.stops[currentIndex + 1];
 }

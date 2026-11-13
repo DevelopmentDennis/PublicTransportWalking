@@ -60,6 +60,13 @@ function indexOfStop(pattern: TransitPattern, station: TransitStop): number {
   return pattern.stops.findIndex((stop) => stop.id === station.id || stop.name === station.name);
 }
 
+export function getWalkingStops(pattern: TransitPattern, station: TransitStop): [TransitStop, TransitStop] | undefined {
+  const index = indexOfStop(pattern, station);
+  const origin = pattern.stops[index];
+  const destination = pattern.stops[index + 1];
+  return origin && destination ? [origin, destination] : undefined;
+}
+
 // Picks the pattern that is running at `now`; prefers patterns that serve the station with a following stop.
 export function pickPattern(
   patterns: TransitPattern[],

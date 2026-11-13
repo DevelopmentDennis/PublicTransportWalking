@@ -18,4 +18,29 @@ describe("local transit data", () => {
       }
     }
   });
+
+  it.each(["200", "202"])("uses the outbound Unterm Berg platform on line %s", (number) => {
+    const line = getLocalTransitCatalog().lines.find((item) => item.id === `bus-${number}`);
+    const patterns = line?.directions.flatMap((direction) => direction.patterns) ?? [];
+    const outbound = patterns.filter((pattern) =>
+      pattern.stops.some((stop, index) =>
+        stop.name === "Friedberg, West P+R" && pattern.stops[index + 1]?.name === "Friedberg, Unterm Berg",
+      ),
+    );
+    expect(outbound.length).toBeGreaterThan(0);
+    for (const pattern of outbound) {
+      const index = pattern.stops.findIndex((stop) => stop.name === "Friedberg, West P+R");
+      expect(pattern.stops[index + 1]).toMatchObject({ latitude: 48.356243, longitude: 10.971403 });
+    }
+
+    const inbound = patterns.find((pattern) =>
+      pattern.stops.some((stop, index) =>
+        stop.name === "Friedberg, Unterm Berg" && pattern.stops[index + 1]?.name === "Friedberg, West P+R",
+      ),
+    );
+    expect(inbound?.stops.find((stop) => stop.name === "Friedberg, Unterm Berg")).toMatchObject({
+      latitude: 48.3564,
+      longitude: 10.971538,
+    });
+  });
 });

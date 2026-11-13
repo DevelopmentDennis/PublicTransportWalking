@@ -11,6 +11,9 @@ import type {
 
 interface IndexStation {
   n: string;
+}
+
+interface IndexPlatform {
   la: number;
   lo: number;
 }
@@ -19,6 +22,7 @@ interface IndexDirection {
   d: string;
   hs: string;
   seq: string[][];
+  plat: string[][];
   sch?: [ScheduleWindow['days'], number, number, number][][];
 }
 
@@ -33,6 +37,7 @@ interface IndexLine {
 
 interface TransitIndex {
   stations: Record<string, IndexStation>;
+  platforms: Record<string, IndexPlatform>;
   lines: IndexLine[];
 }
 
@@ -45,9 +50,17 @@ function parseIndexLine(line: IndexLine): TransitLine | null {
 
   const directions = line.dirs.flatMap((item, dirIndex): TransitDirection[] => {
     const patterns = item.seq.flatMap((ids, patternIndex): TransitPattern[] => {
-      const stops = ids.flatMap((id): TransitStop[] => {
+      const platforms = item.plat[patternIndex];
+      if (!platforms || platforms.length !== ids.length) {
+        throw new Error(`Invalid platform sequence for ${line.file}, direction ${dirIndex}, pattern ${patternIndex}`);
+      }
+      const stops = ids.map((id, stopIndex): TransitStop => {
         const station = index.stations[id];
-        return station ? [{ id, name: station.n, latitude: station.la, longitude: station.lo }] : [];
+        const platform = index.platforms[platforms[stopIndex]!];
+        if (!station || !platform) {
+          throw new Error(`Missing station or platform for ${line.file}, direction ${dirIndex}, pattern ${patternIndex}`);
+        }
+        return { id, name: station.n, latitude: platform.la, longitude: platform.lo };
       });
       if (stops.length < 2) return [];
       const schedule = (item.sch?.[patternIndex] ?? []).map(
