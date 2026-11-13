@@ -1,7 +1,10 @@
 import { Text, Title1 } from "@fluentui/react-components";
 import { motion } from "motion/react";
+import { useTranslation } from "react-i18next";
 
 export function PrivacyPolicyPage() {
+  const { t } = useTranslation();
+
   return (
     <motion.div
       className="page-flow privacy-page"
@@ -10,60 +13,65 @@ export function PrivacyPolicyPage() {
       transition={{ duration: 0.22 }}
     >
       <section className="data-intro" aria-labelledby="privacy-title">
-        <Title1 id="privacy-title">Privacy Policy</Title1>
-        <Text>
-          This policy explains what information the Public Transport Walking
-          app handles when you plan a walk to your next transit stop in the
-          Augsburg network.
-        </Text>
+        <Title1 id="privacy-title">{t("privacy.title")}</Title1>
+        <Text>{t("privacy.intro")}</Text>
       </section>
 
-      <section className="privacy-section" aria-labelledby="privacy-no-data">
-        <h2 id="privacy-no-data">No personal data collection</h2>
+      <section className="privacy-section" aria-labelledby="privacy-controller">
+        <h2 id="privacy-controller">{t("privacy.controllerTitle")}</h2>
+        <p>{t("privacy.controllerText")}</p>
         <p>
-          The app does not require an account, does not use tracking cookies,
-          and does not collect personal data. Route lookups are based solely
-          on the transit line, station, and direction you select in the form.
+          <strong>Dennis Ostertag</strong><br />
+          {t("privacy.email")}: <a href="mailto:mail@dennisostertag.de">mail@dennisostertag.de</a>
+        </p>
+      </section>
+
+      <section className="privacy-section" aria-labelledby="privacy-hosting">
+        <h2 id="privacy-hosting">{t("privacy.hostingTitle")}</h2>
+        <p>{t("privacy.hostingText")}</p>
+        <p>{t("privacy.hostingBasis")}</p>
+      </section>
+
+      <section className="privacy-section" aria-labelledby="privacy-routes">
+        <h2 id="privacy-routes">{t("privacy.routesTitle")}</h2>
+        <p>{t("privacy.routesText")}</p>
+        <p>{t("privacy.routesGoogle")}</p>
+        <p>{t("privacy.routesBasis")}</p>
+      </section>
+
+      <section className="privacy-section" aria-labelledby="privacy-fonts">
+        <h2 id="privacy-fonts">{t("privacy.fontsTitle")}</h2>
+        <p>{t("privacy.fontsText")}</p>
+        <p>{t("privacy.fontsBasis")}</p>
+      </section>
+
+      <section className="privacy-section" aria-labelledby="privacy-maps">
+        <h2 id="privacy-maps">{t("privacy.mapsTitle")}</h2>
+        <p>{t("privacy.mapsText")}</p>
+        <p>
+          {t("privacy.googlePolicy")}{" "}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+            https://policies.google.com/privacy
+          </a>
         </p>
       </section>
 
       <section className="privacy-section" aria-labelledby="privacy-storage">
-        <h2 id="privacy-storage">Local browser storage</h2>
-        <p>
-          Your appearance preference (light, dark, or system theme) is saved
-          in your browser&apos;s local storage so the app remembers it on your
-          next visit. This setting never leaves your device. You can remove it
-          at any time by clearing your browser&apos;s site data.
-        </p>
+        <h2 id="privacy-storage">{t("privacy.storageTitle")}</h2>
+        <p>{t("privacy.storageText")}</p>
+        <p>{t("privacy.trackingText")}</p>
       </section>
 
-      <section className="privacy-section" aria-labelledby="privacy-requests">
-        <h2 id="privacy-requests">Route lookup requests</h2>
-        <p>
-          When you request a walking route, the selected line, station, and
-          direction are sent to the app&apos;s own walking route service to
-          compute the result. These selections are not linked to your identity
-          and are not used for profiling or advertising.
-        </p>
-      </section>
-
-      <section className="privacy-section" aria-labelledby="privacy-third-party">
-        <h2 id="privacy-third-party">Third-party services</h2>
-        <p>
-          Route results may include a link that opens the destination in
-          Google Maps. When you follow that link, Google&apos;s own privacy
-          policy applies to any data processed on their site. No map or
-          location data is loaded from third parties while you stay in this
-          app.
-        </p>
+      <section className="privacy-section" aria-labelledby="privacy-rights">
+        <h2 id="privacy-rights">{t("privacy.rightsTitle")}</h2>
+        <p>{t("privacy.rightsText")}</p>
+        <p>{t("privacy.rightsContact")}</p>
+        <p>{t("privacy.complaint")}</p>
       </section>
 
       <section className="privacy-section" aria-labelledby="privacy-changes">
-        <h2 id="privacy-changes">Changes to this policy</h2>
-        <p>
-          This privacy policy may be updated as the app evolves. The current
-          version is always available on this page.
-        </p>
+        <h2 id="privacy-changes">{t("privacy.changesTitle")}</h2>
+        <p>{t("privacy.changesText")}</p>
       </section>
     </motion.div>
   );
