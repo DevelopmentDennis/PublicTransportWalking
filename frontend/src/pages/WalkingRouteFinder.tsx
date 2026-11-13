@@ -328,6 +328,10 @@ export function WalkingRouteFinder() {
               value={lineQuery ?? (selectedLine ? lineLabel(selectedLine) : "")}
               selectedOptions={selectedLine ? [selectedLine.id] : []}
               placeholder={t("finder.linePlaceholder")}
+              onFocus={(event) => event.currentTarget.select()}
+              onClick={(event) => {
+                if (lineQuery === null) event.currentTarget.select();
+              }}
               onChange={(event) => setLineQuery(event.target.value)}
               onOptionSelect={(_, data) => {
                 // Also fires with optionValue undefined when typing clears the
